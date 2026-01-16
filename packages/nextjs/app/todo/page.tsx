@@ -12,15 +12,18 @@ export default function TodoPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Количество задач
   const { data: taskCount } = useScaffoldReadContract({
     contractName: "Todo",
     functionName: "getTaskCount",
     watch: true,
   });
 
+  // Контракты для записи
   const { writeContractAsync: addTask, isMining: isAdding } = useScaffoldWriteContract({ contractName: "Todo" });
   const { writeContractAsync: toggleTask, isMining: isToggling } = useScaffoldWriteContract({ contractName: "Todo" });
 
+  // Контракт для чтения
   const { data: contract } = useScaffoldContract({ contractName: "Todo" });
 
   const isUserRejectedError = (e: any) => {
@@ -34,6 +37,7 @@ export default function TodoPage() {
     );
   };
 
+  // Загрузка задач через массив и функцию getTask
   useEffect(() => {
     const loadTasks = async () => {
       if (taskCount === undefined || !contract) return;
@@ -43,10 +47,23 @@ export default function TodoPage() {
       try {
         const loaded: Task[] = [];
         const count = Number(taskCount as any);
+
+        // Не перезагружаем, если уже есть все задачи
         if (tasks.length === count) return;
+
         for (let i = 0; i < count; i++) {
-          const taskData = await contract.read.getTask([BigInt(i)]);
-          loaded.push({ text: taskData[0], completed: taskData[1] });
+          // Получаем задачу из публичного массива
+          const taskFromArray = await contract.read.tasks([BigInt(i)]);
+
+          // Получаем задачу через getTask
+          const taskFromFunc = await contract.read.getTask([BigInt(i)]);
+
+          // Проверка совпадения (опционально)
+          if (taskFromArray[0] !== taskFromFunc[0] || taskFromArray[1] !== taskFromFunc[1]) {
+            console.warn(`Mismatch at task ${i}`, taskFromArray, taskFromFunc);
+          }
+
+          loaded.push({ text: taskFromFunc[0], completed: taskFromFunc[1] });
         }
         setTasks(loaded);
       } catch (e: any) {
@@ -105,7 +122,7 @@ export default function TodoPage() {
             setError(null);
             if (!taskText) return;
             const newTask: Task = { text: taskText, completed: false };
-            setTasks(prev => [...prev, newTask]); // optimistic
+            setTasks(prev => [...prev, newTask]); // optimistic update
             setTaskText("");
             try {
               await addTask({ functionName: "addTask", args: [taskText] });
