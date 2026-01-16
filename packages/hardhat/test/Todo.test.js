@@ -3,11 +3,9 @@ import hre from "hardhat";
 
 describe("Todo contract", function () {
   let todo;
-  let owner;
 
   beforeEach(async function () {
     const { ethers } = hre;
-    [owner] = await ethers.getSigners();
 
     const Todo = await ethers.getContractFactory("Todo");
     todo = await Todo.deploy();
@@ -17,16 +15,19 @@ describe("Todo contract", function () {
   it("Should add a new task (write function test)", async function () {
     await todo.addTask("Test task");
 
-    const count = await todo.getTaskCount(owner.address);
+    // Получаем количество задач (без аргументов)
+    const count = await todo.getTaskCount();
     expect(count).to.equal(1);
 
-    const task = await todo.getTask(owner.address, 0);
+    // Получаем задачу по индексу
+    const task = await todo.getTask(0);
     expect(task[0]).to.equal("Test task");
     expect(task[1]).to.equal(false);
   });
 
   it("Should emit TaskAdded event", async function () {
-    await expect(todo.addTask("Event task")).to.emit(todo, "TaskAdded").withArgs(owner.address, "Event task");
+    // Событие TaskAdded содержит только текст задачи
+    await expect(todo.addTask("Event task")).to.emit(todo, "TaskAdded").withArgs("Event task");
   });
 
   it("Should revert when toggling non-existing task (require test)", async function () {

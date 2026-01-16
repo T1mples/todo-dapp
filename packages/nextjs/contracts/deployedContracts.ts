@@ -10,6 +10,19 @@ const deployedContracts = {
       address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
       abi: [
         {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "string",
+              name: "text",
+              type: "string",
+            },
+          ],
+          name: "TaskAdded",
+          type: "event",
+        },
+        {
           inputs: [
             {
               internalType: "string",
