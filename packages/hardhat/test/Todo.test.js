@@ -26,9 +26,7 @@ describe("Todo contract", function () {
   });
 
   it("Should emit TaskAdded event", async function () {
-    await expect(todo.addTask("Event task"))
-      .to.emit(todo, "TaskAdded")
-      .withArgs(owner.address, "Event task");
+    await expect(todo.addTask("Event task")).to.emit(todo, "TaskAdded").withArgs(owner.address, "Event task");
   });
 
   it("Should revert when toggling non-existing task (require test)", async function () {
