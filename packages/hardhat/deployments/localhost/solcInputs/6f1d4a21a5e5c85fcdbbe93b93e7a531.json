@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Todo.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.19;\r\n\r\ncontract Todo {\r\n    struct Task {\r\n        string text;\r\n        bool completed;\r\n    }\r\n\r\n    Task[] public tasks;\r\n\r\n    event TaskAdded(string text);\r\n\r\n    function addTask(string memory _text) public {\r\n        tasks.push(Task({text: _text, completed: false}));\r\n        emit TaskAdded(_text);\r\n    }\r\n\r\n    function toggleTask(uint _index) public {\r\n        require(_index < tasks.length, \"Invalid task index\");\r\n        tasks[_index].completed = !tasks[_index].completed;\r\n    }\r\n\r\n    function getTaskCount() public view returns (uint) {\r\n        return tasks.length;\r\n    }\r\n\r\n    function getTask(uint _index) public view returns (string memory, bool) {\r\n        require(_index < tasks.length, \"Invalid task index\");\r\n        Task storage t = tasks[_index];\r\n        return (t.text, t.completed);\r\n    }\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
