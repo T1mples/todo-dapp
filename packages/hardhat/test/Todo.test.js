@@ -1,11 +1,12 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import hre from "hardhat";
 
 describe("Todo contract", function () {
   let todo;
   let owner;
 
   beforeEach(async function () {
+    const { ethers } = hre;
     [owner] = await ethers.getSigners();
 
     const Todo = await ethers.getContractFactory("Todo");
@@ -25,7 +26,9 @@ describe("Todo contract", function () {
   });
 
   it("Should emit TaskAdded event", async function () {
-    await expect(todo.addTask("Event task")).to.emit(todo, "TaskAdded").withArgs(owner.address, "Event task");
+    await expect(todo.addTask("Event task"))
+      .to.emit(todo, "TaskAdded")
+      .withArgs(owner.address, "Event task");
   });
 
   it("Should revert when toggling non-existing task (require test)", async function () {
